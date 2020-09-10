@@ -51,16 +51,16 @@ namespace Engine
 
 		private static void PopulateItems()
 		{
-			Items.Add(new Weapon(ITEM_ID_RUSTY_SWORD, "Rusty sword", "Why don't you run the edges along the ground?\nIt might get sharper?", 1, 5));
-			Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "Not sure why you grabbed just the tail. Freak."));
-			Items.Add(new Item(ITEM_ID_PIECE_OF_FUR, "Piece of fur", "Not sure why you ripped out a piece of it's fur. Weirdo."));
-			Items.Add(new Item(ITEM_ID_SNAKE_FANG, "Snake fang", "This is where the poison lives. *wink*"));
-			Items.Add(new Item(ITEM_ID_SNAKESKIN, "Snake skin", "It looks like the snake covered itself in glue and then peeled it off"));
-			Items.Add(new Weapon(ITEM_ID_CLUB, "Club", "Boots and cats and boots and cats and boots and cats", 3, 10));
-			Items.Add(new HealingPotion(ITEM_ID_HEALING_POTION, "Healing Potion", "Red is my least favorite flavor", 5));
-			Items.Add(new Item(ITEM_ID_SPIDER_FANG, "Spider fang", "The furriest fang"));
-			Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "Let's make a pretty dress!!!"));
-			Items.Add(new Item(ITEM_ID_ADVENTURER_PASS, "Adventurer Pass", "This pass allows you to legally adventure!"));
+			Items.Add(new Weapon(ITEM_ID_RUSTY_SWORD, "Rusty sword", "rusty swords", 1, 5));
+			Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "rat tails"));
+			Items.Add(new Item(ITEM_ID_PIECE_OF_FUR, "Piece of fur", "pieces of fur"));
+			Items.Add(new Item(ITEM_ID_SNAKE_FANG, "Snake fang", "snake fangs"));
+			Items.Add(new Item(ITEM_ID_SNAKESKIN, "Snake skin", "snake skins"));
+			Items.Add(new Weapon(ITEM_ID_CLUB, "Club", "clubs", 3, 10));
+			Items.Add(new HealingPotion(ITEM_ID_HEALING_POTION, "Healing Potion", "healing potions", 5));
+			Items.Add(new Item(ITEM_ID_SPIDER_FANG, "Spider fang", "spider fangs"));
+			Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "spider silk"));
+			Items.Add(new Item(ITEM_ID_ADVENTURER_PASS, "Adventurer Pass", "adventurer passes"));
 		}
 
 		private static void PopulateEnemies()
