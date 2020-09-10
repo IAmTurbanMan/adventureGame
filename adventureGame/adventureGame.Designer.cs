@@ -36,7 +36,6 @@
 			this.lblGold = new System.Windows.Forms.Label();
 			this.lblExp = new System.Windows.Forms.Label();
 			this.lblLevel = new System.Windows.Forms.Label();
-			this.btnTest = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// label1
@@ -107,22 +106,11 @@
 			this.lblLevel.Size = new System.Drawing.Size(0, 17);
 			this.lblLevel.TabIndex = 7;
 			// 
-			// btnTest
-			// 
-			this.btnTest.Location = new System.Drawing.Point(342, 226);
-			this.btnTest.Name = "btnTest";
-			this.btnTest.Size = new System.Drawing.Size(75, 23);
-			this.btnTest.TabIndex = 8;
-			this.btnTest.Text = "Press Me";
-			this.btnTest.UseVisualStyleBackColor = true;
-			this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
-			// 
 			// adventureGame
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(717, 643);
-			this.Controls.Add(this.btnTest);
 			this.Controls.Add(this.lblLevel);
 			this.Controls.Add(this.lblExp);
 			this.Controls.Add(this.lblGold);
@@ -148,7 +136,6 @@
 		private System.Windows.Forms.Label lblGold;
 		private System.Windows.Forms.Label lblExp;
 		private System.Windows.Forms.Label lblLevel;
-		private System.Windows.Forms.Button btnTest;
 	}
 }
 

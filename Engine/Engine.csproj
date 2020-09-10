@@ -41,7 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Creature.cs" />
+    <Compile Include="Enemy.cs" />
+    <Compile Include="HealingPotion.cs" />
+    <Compile Include="InventoryItem.cs" />
+    <Compile Include="Item.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="LootItem.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="PlayerQuest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Quest.cs" />
+    <Compile Include="QuestCompletionItem.cs" />
+    <Compile Include="Weapon.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
