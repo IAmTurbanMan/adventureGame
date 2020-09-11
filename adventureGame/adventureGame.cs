@@ -57,7 +57,7 @@ namespace adventureGame
 			if(!_player.HasRequiredItemToEnterThisLocation(newLocation))
 			{
 				rtbMessages.Text += "You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this place." + Environment.NewLine;
-		
+				ScrollToBottomOfMessages();
 				return;
 			}
 
@@ -71,7 +71,7 @@ namespace adventureGame
 			btnWest.Visible = (newLocation.LocationToWest != null);
 
 			//Display current location name and description
-			rtbLocation.Text = newLocation.Name + Environment.NewLine;
+			rtbLocation.Text = newLocation.Name + Environment.NewLine + Environment.NewLine;
 			rtbLocation.Text += newLocation.Description + Environment.NewLine;
 
 			//heal player
@@ -112,6 +112,7 @@ namespace adventureGame
 							rtbMessages.Text += newLocation.QuestAvailableHere.RewardGold.ToString() + " Gold" + Environment.NewLine;
 							rtbMessages.Text += newLocation.QuestAvailableHere.RewardItem.Name + Environment.NewLine;
 							rtbMessages.Text += Environment.NewLine;
+							ScrollToBottomOfMessages();
 
 							_player.EXP += newLocation.QuestAvailableHere.RewardEXP;
 							_player.Gold += newLocation.QuestAvailableHere.RewardGold;
@@ -144,6 +145,7 @@ namespace adventureGame
 						}
 					}
 					rtbMessages.Text += Environment.NewLine;
+					ScrollToBottomOfMessages();
 
 					//add quest to quest list
 					_player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere));
@@ -154,6 +156,7 @@ namespace adventureGame
 			if(newLocation.EnemyLivingHere != null)
 			{
 				rtbMessages.Text += "You see a " + newLocation.EnemyLivingHere.Name + Environment.NewLine;
+				ScrollToBottomOfMessages();
 
 				//make new enemy using values from std enemy in World.Enemy list
 				Enemy standardEnemy = World.EnemyById(newLocation.EnemyLivingHere.ID);
@@ -398,6 +401,7 @@ namespace adventureGame
 			lblExp.Text = _player.EXP.ToString();
 			lblLevel.Text = _player.Level.ToString();
 
+			ScrollToBottomOfMessages();
 			UpdateInventoryListUI();
 			UpdateWeaponListUI();
 			UpdatePotionsListUI();
@@ -422,6 +426,7 @@ namespace adventureGame
 
 			//display message
 			rtbMessages.Text += "You hit the " + _currentEnemy.Name + " for " + damageToEnemy.ToString() + " damage. WOW!" + Environment.NewLine;
+			ScrollToBottomOfMessages();
 		}
 
 		private void EnemyAttacks()
@@ -431,6 +436,7 @@ namespace adventureGame
 
 			//display message
 			rtbMessages.Text += "The " + _currentEnemy.Name + " did " + damageToPlayer.ToString() + " to you. Are you going to take that?" + Environment.NewLine;
+			ScrollToBottomOfMessages();
 
 			//subtract damage from player
 			_player.CurrentHP -= damageToPlayer;
@@ -443,6 +449,7 @@ namespace adventureGame
 		{
 			//display message
 			rtbMessages.Text += "The " + _currentEnemy.Name + " killed you. You suck at adventuring..." + Environment.NewLine;
+			ScrollToBottomOfMessages();
 
 			//move player to "home"
 			MoveTo(World.LocationById(World.LOCATION_ID_HOME));
@@ -474,6 +481,13 @@ namespace adventureGame
 
 			//display message
 			rtbMessages.Text += "You drink a " + potion.Name + Environment.NewLine;
+			ScrollToBottomOfMessages();
+		}
+
+		private void ScrollToBottomOfMessages()
+		{
+			rtbMessages.SelectionStart = rtbMessages.Text.Length;
+			rtbMessages.ScrollToCaret();
 		}
 
 	}
