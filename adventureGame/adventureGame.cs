@@ -21,14 +21,11 @@ namespace adventureGame
 		{
 			InitializeComponent();
 
-			_player = new Player(10, 10, 20, 0, 1);
+			_player = new Player(10, 10, 20, 0);
 			MoveTo(World.LocationById(World.LOCATION_ID_HOME));
 			_player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
 
-			lblHP.Text = _player.CurrentHP.ToString();
-			lblGold.Text = _player.Gold.ToString();
-			lblExp.Text = _player.EXP.ToString();
-			lblLevel.Text = _player.Level.ToString();
+			UpdatePlayerStats();
 		}
 
 		private void btnNorth_Click(object sender, EventArgs e)
@@ -122,6 +119,8 @@ namespace adventureGame
 
 							//mark quest as completed
 							_player.MarkQuestCompleted(newLocation.QuestAvailableHere);
+
+							UpdatePlayerStats();
 						}
 					}
 				}
@@ -184,17 +183,7 @@ namespace adventureGame
 				btnUsePotion.Visible = false;
 			}
 
-			//refresh inventory list
-			UpdateInventoryListUI();
-
-			//refresh quest list
-			UpdateQuestListUI();
-
-			//refresh weapon combo box
-			UpdateWeaponListUI();
-
-			//refresh potions combo box
-			UpdatePotionsListUI();
+			UpdatePlayerStats();
 		}
 
 		private void UpdateInventoryListUI()
@@ -396,15 +385,8 @@ namespace adventureGame
 			}
 
 			//refresh player info and inventory controls
-			lblHP.Text = _player.CurrentHP.ToString();
-			lblGold.Text = _player.Gold.ToString();
-			lblExp.Text = _player.EXP.ToString();
-			lblLevel.Text = _player.Level.ToString();
-
+			UpdatePlayerStats();
 			ScrollToBottomOfMessages();
-			UpdateInventoryListUI();
-			UpdateWeaponListUI();
-			UpdatePotionsListUI();
 
 			//add blank line to messages box for text flow
 			rtbMessages.Text += Environment.NewLine;
@@ -490,5 +472,17 @@ namespace adventureGame
 			rtbMessages.ScrollToCaret();
 		}
 
+		private void UpdatePlayerStats()
+		{
+			//update stats and inventory controls
+			lblHP.Text = _player.CurrentHP.ToString();
+			lblGold.Text = _player.Gold.ToString();
+			lblExp.Text = _player.EXP.ToString();
+			lblLevel.Text = _player.Level.ToString();
+			UpdateInventoryListUI();
+			UpdateWeaponListUI();
+			UpdatePotionsListUI();
+			UpdateQuestListUI();
+		}
 	}
 }
