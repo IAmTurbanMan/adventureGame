@@ -72,7 +72,7 @@ namespace adventureGame
 
 			//Display current location name and description
 			rtbLocation.Text = newLocation.Name + Environment.NewLine;
-			rtbLocation.Text += newLocation.Name + Environment.NewLine;
+			rtbLocation.Text += newLocation.Description + Environment.NewLine;
 
 			//heal player
 			_player.CurrentHP = _player.MaxHP;
@@ -299,6 +299,118 @@ namespace adventureGame
 
 		private void btnUseWeapon_Click(object sender, EventArgs e)
 		{
+			//damage enemy with selected weapon
+			AttackEnemy();
+
+			//enemy is defeated
+			if(_currentEnemy.CurrentHP <= 0)
+			{
+				EnemyDefeated();
+			}
+			//enemy survives
+			else
+			{
+				EnemyAttacks();
+
+				//player eats dust
+				if(_player.CurrentHP <= 0)
+				{
+					PlayerEatsDust();
+				}
+			}
+		}
+
+		private void btnUsePotion_Click(object sender, EventArgs e)
+		{
+			//use selected potion
+			PotionUse();
+
+			//monster attacks
+			EnemyAttacks();
+
+			//player eats dust
+			if (_player.CurrentHP <= 0)
+			{
+				PlayerEatsDust();
+			}
+
+			//refresh player data in UI
+			UpdateInventoryListUI();
+			UpdatePotionsListUI();
+		}
+
+		private void EnemyDefeated()
+		{
+			//enemy is dead
+			rtbMessages.Text += Environment.NewLine;
+			rtbMessages.Text += "You defeated the " + _currentEnemy.Name + "! Way to go!" + Environment.NewLine;
+
+			//give exp
+			_player.EXP += _currentEnemy.RewardEXP;
+			rtbMessages.Text += "You receive " + _currentEnemy.RewardEXP.ToString() + " experience. Keep 'em. You've earned 'em." + Environment.NewLine;
+
+			//give gold
+			_player.Gold += _currentEnemy.RewardGold;
+			rtbMessages.Text += "You receive " + _currentEnemy.RewardGold.ToString() + " gold. Go buy yourself something nice." + Environment.NewLine;
+
+			//give random loot
+			List<InventoryItem> lootedItems = new List<InventoryItem>();
+
+			//add items to lootedItems list, comparing random number to drop percentage
+			foreach (LootItem lootItem in _currentEnemy.LootTable)
+			{
+				if (RNG.NumberBetween(1, 100) <= lootItem.DropPercentage)
+				{
+					lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+				}
+			}
+
+			//if no items randomly selected, add default loot items
+			if (lootedItems.Count == 0)
+			{
+				foreach (LootItem lootItem in _currentEnemy.LootTable)
+				{
+					if (lootItem.IsDefaultItem)
+					{
+						lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+					}
+				}
+			}
+
+			//add looted items to player's inventory
+			foreach (InventoryItem inventoryItem in lootedItems)
+			{
+				_player.AddItemToInventory(inventoryItem.Details);
+
+				if (inventoryItem.Quantity == 1)
+				{
+					rtbMessages.Text += "You loot " + inventoryItem.Quantity.ToString() + " " + inventoryItem.Details.Name + Environment.NewLine;
+				}
+				else
+				{
+					rtbMessages.Text += "You loot " + inventoryItem.Quantity.ToString() + " " + inventoryItem.Details.NamePlural + Environment.NewLine;
+				}
+			}
+
+			//refresh player info and inventory controls
+			lblHP.Text = _player.CurrentHP.ToString();
+			lblGold.Text = _player.Gold.ToString();
+			lblExp.Text = _player.EXP.ToString();
+			lblLevel.Text = _player.Level.ToString();
+
+			UpdateInventoryListUI();
+			UpdateWeaponListUI();
+			UpdatePotionsListUI();
+
+			//add blank line to messages box for text flow
+			rtbMessages.Text += Environment.NewLine;
+
+			//move player to current location (to heal and creat new monster to fight)
+			MoveTo(_player.CurrentLocation);
+		}
+
+		private void AttackEnemy()
+		{
 			//get currently selected weapon from cboWeapons
 			Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;
 
@@ -310,132 +422,11 @@ namespace adventureGame
 
 			//display message
 			rtbMessages.Text += "You hit the " + _currentEnemy.Name + " for " + damageToEnemy.ToString() + " damage. WOW!" + Environment.NewLine;
-
-			//check if enemy is dead
-			if(_currentEnemy.CurrentHP <= 0)
-			{
-				//enemy is dead
-				rtbMessages.Text += Environment.NewLine;
-				rtbMessages.Text += "You defeated the " + _currentEnemy.Name + "! Way to go!" + Environment.NewLine;
-
-				//give exp
-				_player.EXP += _currentEnemy.RewardEXP;
-				rtbMessages.Text += "You receive " + _currentEnemy.RewardEXP.ToString() + " experience. Keep 'em. You've earned 'em." + Environment.NewLine;
-
-				//give gold
-				_player.Gold += _currentEnemy.RewardGold;
-				rtbMessages.Text += "You receive " + _currentEnemy.RewardGold.ToString() + " gold. Go buy yourself something nice." + Environment.NewLine;
-
-				//give random loot
-				List<InventoryItem> lootedItems = new List<InventoryItem>();
-
-				//add items to lootedItems list, comparing random number to drop percentage
-				foreach(LootItem lootItem in _currentEnemy.LootTable)
-				{
-					if(RNG.NumberBetween(1, 100) <= lootItem.DropPercentage)
-					{
-						lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-					}
-				}
-
-				//if no items randomly selected, add default loot items
-				if(lootedItems.Count == 0)
-				{
-					foreach(LootItem lootItem in _currentEnemy.LootTable)
-					{
-						if(lootItem.IsDefaultItem)
-						{
-							lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-						}
-					}
-				}
-
-				//add looted items to player's inventory
-				foreach(InventoryItem inventoryItem in lootedItems)
-				{
-					_player.AddItemToInventory(inventoryItem.Details);
-
-					if(inventoryItem.Quantity == 1)
-					{
-						rtbMessages.Text += "You loot " + inventoryItem.Quantity.ToString() + " " + inventoryItem.Details.Name + Environment.NewLine;
-					}
-					else
-					{
-						rtbMessages.Text += "You loot " + inventoryItem.Quantity.ToString() + " " + inventoryItem.Details.NamePlural + Environment.NewLine;
-					}
-				}
-
-				//refresh player info and inventory controls
-				lblHP.Text = _player.CurrentHP.ToString();
-				lblGold.Text = _player.Gold.ToString();
-				lblExp.Text = _player.EXP.ToString();
-				lblLevel.Text = _player.Level.ToString();
-
-				UpdateInventoryListUI();
-				UpdateWeaponListUI();
-				UpdatePotionsListUI();
-
-				//add blank line to messages box for text flow
-				rtbMessages.Text += Environment.NewLine;
-
-				//move player to current location (to heal and creat new monster to fight)
-				MoveTo(_player.CurrentLocation);
-			}
-			else
-			{
-				//enemy is still alive
-
-				//determine damage enemy does to player
-				int damageToPlayer = RNG.NumberBetween(0, _currentEnemy.MaxDamage);
-
-				//display message
-				rtbMessages.Text += "The " + _currentEnemy.Name + " did " + damageToPlayer.ToString() + " to you. Are you going to take that?" + Environment.NewLine;
-
-				//subtract damage from player
-				_player.CurrentHP -= damageToPlayer;
-
-				//refresh player data in UI
-				lblHP.Text = _player.CurrentHP.ToString();
-
-				if(_player.CurrentHP <= 0)
-				{
-					//display message
-					rtbMessages.Text += "The " + _currentEnemy.Name + " killed you. You suck at adventuring..." + Environment.NewLine;
-
-					//move player to "home"
-					MoveTo(World.LocationById(World.LOCATION_ID_HOME));
-				}
-			}
 		}
 
-		private void btnUsePotion_Click(object sender, EventArgs e)
+		private void EnemyAttacks()
 		{
-			//get currently selected potion
-			HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
-
-			//add healing amouint to player's current hp
-			_player.CurrentHP += potion.AmountToHeal;
-
-			//current hp cannot be more than maxHP
-			if(_player.CurrentHP > _player.MaxHP)
-			{
-				_player.CurrentHP = _player.MaxHP;
-			}
-
-			//remove potion from inventory
-			foreach(InventoryItem ii in _player.Inventory)
-			{
-				if(ii.Details.ID == potion.ID)
-				{
-					ii.Quantity--;
-					break;
-				}
-			}
-
-			//display message
-			rtbMessages.Text += "You drink a " + potion.Name + Environment.NewLine;
-
-			//monster attacks
+			//determine damage enemy does to player
 			int damageToPlayer = RNG.NumberBetween(0, _currentEnemy.MaxDamage);
 
 			//display message
@@ -444,19 +435,45 @@ namespace adventureGame
 			//subtract damage from player
 			_player.CurrentHP -= damageToPlayer;
 
-			if (_player.CurrentHP <= 0)
-			{
-				//display message
-				rtbMessages.Text += "The " + _currentEnemy.Name + " killed you. You suck at adventuring..." + Environment.NewLine;
-
-				//move player to "home"
-				MoveTo(World.LocationById(World.LOCATION_ID_HOME));
-			}
-
 			//refresh player data in UI
 			lblHP.Text = _player.CurrentHP.ToString();
-			UpdateInventoryListUI();
-			UpdatePotionsListUI();
+		}
+
+		private void PlayerEatsDust()
+		{
+			//display message
+			rtbMessages.Text += "The " + _currentEnemy.Name + " killed you. You suck at adventuring..." + Environment.NewLine;
+
+			//move player to "home"
+			MoveTo(World.LocationById(World.LOCATION_ID_HOME));
+		}
+
+		private void PotionUse()
+		{
+			//get currently selected potion
+			HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
+
+			//add healing amouint to player's current hp
+			_player.CurrentHP += potion.AmountToHeal;
+
+			//current hp cannot be more than maxHP
+			if (_player.CurrentHP > _player.MaxHP)
+			{
+				_player.CurrentHP = _player.MaxHP;
+			}
+
+			//remove potion from inventory
+			foreach (InventoryItem ii in _player.Inventory)
+			{
+				if (ii.Details.ID == potion.ID)
+				{
+					ii.Quantity--;
+					break;
+				}
+			}
+
+			//display message
+			rtbMessages.Text += "You drink a " + potion.Name + Environment.NewLine;
 		}
 
 	}

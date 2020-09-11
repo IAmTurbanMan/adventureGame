@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Engine
 {
 	public class Enemy : Creature
@@ -15,7 +16,7 @@ namespace Engine
 		public int RewardGold { get; set; }
 		public List<LootItem> LootTable { get; set; }
 
-	public Enemy(int id, string name, int maxdamage, int rewardexp, int rewardgold, int currenthp, int maxhp) : base(currenthp, maxhp)
+		public Enemy(int id, string name, int maxdamage, int rewardexp, int rewardgold, int currenthp, int maxhp) : base(currenthp, maxhp)
 		{
 			ID = id;
 			Name = name;
