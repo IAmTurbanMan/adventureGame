@@ -286,6 +286,7 @@
 			this.Controls.Add(this.label1);
 			this.Name = "adventureGame";
 			this.Text = "Adventure Cave";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.adventureGame_FormClosing);
 			((System.ComponentModel.ISupportInitialize)(this.dgvInventory)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.dgvQuests)).EndInit();
 			this.ResumeLayout(false);
