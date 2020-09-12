@@ -109,7 +109,7 @@ namespace Engine
 			//create each location
 			Location home = new Location(LOCATION_ID_HOME, "Home", "Your house. Your place is as tidy as ever.");
 
-			Location townSquare = new Location(LOCATION_ID_TOWN_SQUARE, "Town square", "There is a fountain slowly trickling water out of the only spout that isn't clogged.\n The town square is dead as usual.");
+			Location townSquare = new Location(LOCATION_ID_TOWN_SQUARE, "Town square", "There is a fountain slowly trickling water out of the only spout that isn't clogged.\nThe town square is dead as usual.");
 
 			Location alchemistHut = new Location(LOCATION_ID_ALCHEMIST_HUT, "Alchemist hut", "You see a few strange and glowing plants sit perilously on the shelves in the spartan hut.");
 			alchemistHut.QuestAvailableHere = QuestById(QUEST_ID_CLEAR_ALCHEMIST_GARDEN);
