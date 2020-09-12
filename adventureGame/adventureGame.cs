@@ -119,7 +119,7 @@ namespace adventureGame
 							rtbMessages.Text += Environment.NewLine;
 							ScrollToBottomOfMessages();
 
-							_player.EXP += newLocation.QuestAvailableHere.RewardEXP;
+							_player.AddEXP(newLocation.QuestAvailableHere.RewardEXP);
 							_player.Gold += newLocation.QuestAvailableHere.RewardGold;
 
 							//add reward item to inventory
@@ -355,7 +355,7 @@ namespace adventureGame
 			rtbMessages.Text += "You defeated the " + _currentEnemy.Name + "! Way to go!" + Environment.NewLine;
 
 			//give exp
-			_player.EXP += _currentEnemy.RewardEXP;
+			_player.AddEXP(_currentEnemy.RewardEXP);
 			rtbMessages.Text += "You receive " + _currentEnemy.RewardEXP.ToString() + " experience. Keep 'em. You've earned 'em." + Environment.NewLine;
 
 			//give gold

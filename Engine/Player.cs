@@ -10,7 +10,7 @@ namespace Engine
 	public class Player : Creature
 	{
 		public int Gold { get; set; }
-		public int EXP { get; set; }
+		public int EXP { get; private set; }
 		public int Level
 		{
 			get { return ((EXP / 100) + 1); }
@@ -262,6 +262,12 @@ namespace Engine
 			}
 			//xml doc as string to save data to disk
 			return playerData.InnerXml;
+		}
+
+		public void AddEXP(int EXPToAdd)
+		{
+			EXP += EXPToAdd;
+			MaxHP = (Level * 10);
 		}
 
 	}

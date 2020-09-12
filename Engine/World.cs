@@ -68,14 +68,17 @@ namespace Engine
 			Enemy rat = new Enemy(ENEMY_ID_RAT, "Rat", 5, 3, 10, 3, 3);
 			rat.LootTable.Add(new LootItem(ItemByID(ITEM_ID_RAT_TAIL), 75, false));
 			rat.LootTable.Add(new LootItem(ItemByID(ITEM_ID_PIECE_OF_FUR), 75, true));
+			rat.LootTable.Add(new LootItem(ItemByID(ITEM_ID_CLUB), 1, false));
 
 			Enemy snake = new Enemy(ENEMY_ID_SNAKE, "Snake", 5, 3, 10, 3, 3);
 			snake.LootTable.Add(new LootItem(ItemByID(ITEM_ID_SNAKE_FANG), 75, false));
 			snake.LootTable.Add(new LootItem(ItemByID(ITEM_ID_SNAKESKIN), 75, true));
+			snake.LootTable.Add(new LootItem(ItemByID(ITEM_ID_CLUB), 5, false));
 
 			Enemy giantSpider = new Enemy(ENEMY_ID_GIANT_SPIDER, "Giant spider", 20, 7, 40, 10, 10);
 			giantSpider.LootTable.Add(new LootItem(ItemByID(ITEM_ID_SPIDER_FANG), 75, true));
 			giantSpider.LootTable.Add(new LootItem(ItemByID(ITEM_ID_SPIDER_SILK), 25, false));
+			giantSpider.LootTable.Add(new LootItem(ItemByID(ITEM_ID_CLUB), 10, false));
 
 			Enemies.Add(rat);
 			Enemies.Add(snake);
