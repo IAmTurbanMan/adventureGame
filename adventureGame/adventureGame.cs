@@ -32,6 +32,11 @@ namespace adventureGame
 				_player = Player.CreateDefaultPlayer();
 			}
 
+			lblHP.DataBindings.Add("Text", _player, "CurrentHP");
+			lblGold.DataBindings.Add("Text", _player, "Gold");
+			lblExp.DataBindings.Add("Text", _player, "EXP");
+			lblLevel.DataBindings.Add("Text", _player, "Level");
+
 			MoveTo(_player.CurrentLocation);
 			UpdatePlayerStats();
 		}
@@ -81,9 +86,6 @@ namespace adventureGame
 
 			//heal player
 			_player.CurrentHP = _player.MaxHP;
-
-			//update HP in UI
-			lblHP.Text = _player.CurrentHP.ToString();
 
 			//does location have quest?
 			if (newLocation.QuestAvailableHere != null)
@@ -439,9 +441,6 @@ namespace adventureGame
 
 			//subtract damage from player
 			_player.CurrentHP -= damageToPlayer;
-
-			//refresh player data in UI
-			lblHP.Text = _player.CurrentHP.ToString();
 		}
 
 		private void PlayerEatsDust()
@@ -491,11 +490,7 @@ namespace adventureGame
 
 		private void UpdatePlayerStats()
 		{
-			//update stats and inventory controls
-			lblHP.Text = _player.CurrentHP.ToString();
-			lblGold.Text = _player.Gold.ToString();
-			lblExp.Text = _player.EXP.ToString();
-			lblLevel.Text = _player.Level.ToString();
+			//inventory controls
 			UpdateInventoryListUI();
 			UpdateWeaponListUI();
 			UpdatePotionsListUI();

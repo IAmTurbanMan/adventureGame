@@ -9,8 +9,28 @@ namespace Engine
 {
 	public class Player : Creature
 	{
-		public int Gold { get; set; }
-		public int EXP { get; private set; }
+		private int _gold;
+		private int _EXP;
+		public int Gold
+		{
+			get { return _gold; }
+			set
+			{
+				_gold = value;
+				OnPropertyChanged("Gold");
+			}
+		}
+
+		public int EXP
+		{
+			get { return _EXP; }
+			private set
+			{
+				_EXP = value;
+				OnPropertyChanged("EXP");
+				OnPropertyChanged("Level");
+			}
+		}
 		public int Level
 		{
 			get { return ((EXP / 100) + 1); }
