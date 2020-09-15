@@ -40,6 +40,14 @@ namespace Engine
 		public BindingList<PlayerQuest> Quests { get; set; }
 		public Location CurrentLocation { get; set; }
 		public Weapon CurrentWeapon { get; set; }
+		public List<Weapon> Weapons
+		{
+			get { return Inventory.Where(x => x.Details is Weapon).Select(x => x.Details as Weapon).ToList(); }
+		}
+		public List<HealingPotion> Potions
+		{
+			get { return Inventory.Where(x => x.Details is HealingPotion).Select(x => x.Details as HealingPotion).ToList(); }
+		}
 
 		private Player(int currenthp, int maxhp, int gold, int exp) : base(currenthp, maxhp)
 		{
@@ -170,25 +178,27 @@ namespace Engine
 				if(item != null)
 				{
 					//subtract qci quantity from player's inventory
-					item.Quantity -= qci.Quantity;
+					RemoveItemFromInventory(item.Details, qci.Quantity);
 				}
 			}
 		}
 
-		public void AddItemToInventory(Item itemToAdd)
+		public void AddItemToInventory(Item itemToAdd, int quantity = 1)
 		{
 			InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
 
 			if(item == null)
 			{
 				//didn't have item, so add 1 to inventory
-				Inventory.Add(new InventoryItem(itemToAdd, 1));
+				Inventory.Add(new InventoryItem(itemToAdd, quantity));
 			}
 			else
 			{
 				//have item, so increase quantity by 1
-				item.Quantity++;
+				item.Quantity += quantity;
 			}
+
+			RaiseInventoryChangedEvent(itemToAdd);
 		}
 
 		public void MarkQuestCompleted(Quest quest)
@@ -289,6 +299,51 @@ namespace Engine
 		{
 			EXP += EXPToAdd;
 			MaxHP = (Level * 10);
+		}
+
+		private void RaiseInventoryChangedEvent(Item item)
+		{
+			if(item is Weapon)
+			{
+				OnPropertyChanged("Weapons");
+			}
+
+			if(item is HealingPotion)
+			{
+				OnPropertyChanged("Potions");
+			}
+		}
+
+		public void RemoveItemFromInventory(Item itemToRemove, int quantity = 1)
+		{
+			InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
+
+			if(item == null)
+			{
+				//item is not in inventory so ignore
+				//maybe raise error here
+			}
+			else
+			{
+				//item is in inventory, decrease quantity
+				item.Quantity -= quantity;
+
+				//no negative quantities
+				//maybe raise error here
+				if(item.Quantity < 0)
+				{
+					item.Quantity = 0;
+				}
+
+				//if quantity is 0, remove from list
+				if(item.Quantity == 0)
+				{
+					Inventory.Remove(item);
+				}
+
+				//notify UI inventory has changed
+				RaiseInventoryChangedEvent(itemToRemove);
+			}
 		}
 
 	}

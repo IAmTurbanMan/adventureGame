@@ -74,8 +74,24 @@ namespace adventureGame
 				DataPropertyName = "IsCompleted"
 			});
 
+			cboWeapons.DataSource = _player.Weapons;
+			cboWeapons.DisplayMember = "Name";
+			cboWeapons.ValueMember = "Id";
+
+			if(_player.CurrentWeapon != null)
+			{
+				cboWeapons.SelectedItem = _player.CurrentWeapon;
+			}
+
+			cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
+
+			cboPotions.DataSource = _player.Potions;
+			cboPotions.DisplayMember = "Name";
+			cboPotions.ValueMember = "Id";
+
+			_player.PropertyChanged += PlayerOnPropertyChanged;
+
 			MoveTo(_player.CurrentLocation);
-			UpdatePlayerStats();
 		}
 
 		private void btnNorth_Click(object sender, EventArgs e)
@@ -166,8 +182,6 @@ namespace adventureGame
 
 							//mark quest as completed
 							_player.MarkQuestCompleted(newLocation.QuestAvailableHere);
-
-							UpdatePlayerStats();
 						}
 					}
 				}
@@ -215,10 +229,10 @@ namespace adventureGame
 					_currentEnemy.LootTable.Add(lootItem);
 				}
 
-				cboWeapons.Visible = true;
-				cboPotions.Visible = true;
-				btnUseWeapon.Visible = true;
-				btnUsePotion.Visible = true;
+				cboWeapons.Visible = _player.Weapons.Any();
+				cboPotions.Visible = _player.Potions.Any();
+				btnUseWeapon.Visible = _player.Weapons.Any();
+				btnUsePotion.Visible = _player.Potions.Any();
 			}
 			else
 			{
@@ -228,79 +242,6 @@ namespace adventureGame
 				cboPotions.Visible = false;
 				btnUseWeapon.Visible = false;
 				btnUsePotion.Visible = false;
-			}
-
-			UpdatePlayerStats();
-		}
-
-		private void UpdateWeaponListUI()
-		{
-			List<Weapon> weapons = new List<Weapon>();
-
-			foreach (InventoryItem inventoryItem in _player.Inventory)
-			{
-				if (inventoryItem.Details is Weapon)
-				{
-					if (inventoryItem.Quantity > 0)
-					{
-						weapons.Add((Weapon)inventoryItem.Details);
-					}
-				}
-			}
-
-			if (weapons.Count == 0)
-			{
-				//player doesn't have any weapons, hide combobox and "use" button
-				cboWeapons.Visible = false;
-				btnUseWeapon.Visible = false;
-			}
-			else
-			{
-				cboWeapons.SelectedIndexChanged -= cboWeapons_SelectedIndexChanged;
-				cboWeapons.DataSource = weapons;
-				cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
-				cboWeapons.DisplayMember = "Name";
-				cboWeapons.ValueMember = "ID";
-
-				if (_player.CurrentWeapon != null)
-				{
-					cboWeapons.SelectedItem = _player.CurrentWeapon;
-				}
-				else
-				{
-					cboWeapons.SelectedIndex = 0;
-				}
-			}	
-		}
-
-		private void UpdatePotionsListUI()
-		{
-			List<HealingPotion> healingPotions = new List<HealingPotion>();
-
-			foreach (InventoryItem inventoryItem in _player.Inventory)
-			{
-				if (inventoryItem.Details is HealingPotion)
-				{
-					if (inventoryItem.Quantity > 0)
-					{
-						healingPotions.Add((HealingPotion)inventoryItem.Details);
-					}
-				}
-			}
-
-			if (healingPotions.Count == 0)
-			{
-				//no potions in inventory, hide potions combo box and "use" button
-				cboPotions.Visible = false;
-				btnUsePotion.Visible = false;
-			}
-			else
-			{
-				cboPotions.DataSource = healingPotions;
-				cboPotions.DisplayMember = "Name";
-				cboPotions.ValueMember = "ID";
-
-				cboPotions.SelectedIndex = 0;
 			}
 		}
 
@@ -312,18 +253,14 @@ namespace adventureGame
 			//enemy is defeated
 			if(_currentEnemy.CurrentHP <= 0)
 			{
+				//dies and gives loot
 				EnemyDefeated();
 			}
 			//enemy survives
 			else
 			{
+				//then attacks
 				EnemyAttacks();
-
-				//player eats dust
-				if(_player.CurrentHP <= 0)
-				{
-					PlayerEatsDust();
-				}
 			}
 		}
 
@@ -334,15 +271,6 @@ namespace adventureGame
 
 			//monster attacks
 			EnemyAttacks();
-
-			//player eats dust
-			if (_player.CurrentHP <= 0)
-			{
-				PlayerEatsDust();
-			}
-
-			//refresh player data in UI
-			UpdatePotionsListUI();
 		}
 
 		private void EnemyDefeated()
@@ -398,8 +326,6 @@ namespace adventureGame
 				}
 			}
 
-			//refresh player info and inventory controls
-			UpdatePlayerStats();
 			ScrollToBottomOfMessages();
 
 			//add blank line to messages box for text flow
@@ -436,6 +362,11 @@ namespace adventureGame
 
 			//subtract damage from player
 			_player.CurrentHP -= damageToPlayer;
+
+			if (_player.CurrentHP <= 0)
+			{
+				PlayerEatsDust();
+			}
 		}
 
 		private void PlayerEatsDust()
@@ -463,14 +394,7 @@ namespace adventureGame
 			}
 
 			//remove potion from inventory
-			foreach (InventoryItem ii in _player.Inventory)
-			{
-				if (ii.Details.ID == potion.ID)
-				{
-					ii.Quantity--;
-					break;
-				}
-			}
+			_player.RemoveItemFromInventory(potion, 1);
 
 			//display message
 			rtbMessages.Text += "You drink a " + potion.Name + Environment.NewLine;
@@ -483,13 +407,6 @@ namespace adventureGame
 			rtbMessages.ScrollToCaret();
 		}
 
-		private void UpdatePlayerStats()
-		{
-			//inventory controls
-			UpdateWeaponListUI();
-			UpdatePotionsListUI();
-		}
-
 		private void adventureGame_FormClosing(object sender, FormClosingEventArgs e)
 		{
 			File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXmlString());
@@ -498,6 +415,31 @@ namespace adventureGame
 		private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			_player.CurrentWeapon = (Weapon)cboWeapons.SelectedItem;
+		}
+
+		private void PlayerOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+		{
+			if (propertyChangedEventArgs.PropertyName == "Weapons")
+			{
+				cboWeapons.DataSource = _player.Weapons;
+
+				if (!_player.Weapons.Any())
+				{
+					cboWeapons.Visible = false;
+					btnUseWeapon.Visible = false;
+				}
+			}
+
+			if(propertyChangedEventArgs.PropertyName == "Potions")
+			{
+				cboPotions.DataSource = _player.Potions;
+
+				if(!_player.Potions.Any())
+				{
+					cboPotions.Visible = false;
+					btnUsePotion.Visible = false;
+				}
+			}
 		}
 	}
 }
