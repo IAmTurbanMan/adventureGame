@@ -10,8 +10,12 @@ namespace Engine
 {
 	public class Player : Creature
 	{
+		private Location _currentLocation;
+		private Enemy _currentEnemy;
 		private int _gold;
 		private int _EXP;
+
+		public event EventHandler<MessageEventArgs> OnMessage;
 		public int Gold
 		{
 			get { return _gold; }
@@ -38,7 +42,15 @@ namespace Engine
 		}
 		public BindingList<InventoryItem> Inventory { get; set; }
 		public BindingList<PlayerQuest> Quests { get; set; }
-		public Location CurrentLocation { get; set; }
+		public Location CurrentLocation
+		{
+			get { return _currentLocation; }
+			set
+			{
+				_currentLocation = value;
+				OnPropertyChanged("CurrentLocation");
+			}
+		}
 		public Weapon CurrentWeapon { get; set; }
 		public List<Weapon> Weapons
 		{
@@ -119,6 +131,14 @@ namespace Engine
 			{
 				//if error with XML data, return default player
 				return Player.CreateDefaultPlayer();
+			}
+		}
+
+		private void RaiseMessage(string message, bool addExtraNewLine = false)
+		{
+			if(OnMessage != null)
+			{
+				OnMessage(this, new MessageEventArgs(message, addExtraNewLine));
 			}
 		}
 
@@ -346,5 +366,276 @@ namespace Engine
 			}
 		}
 
+		private void MoveTo(Location newLocation)
+		{
+			//Does the location have required items
+			if (!HasRequiredItemToEnterThisLocation(newLocation))
+			{
+				RaiseMessage("You must have a " + newLocation.ItemRequiredToEnter.Name + " to enter this place.");
+				return;
+			}
+
+			//update player's current location
+			CurrentLocation = newLocation;
+
+			//heal player
+			CurrentHP = MaxHP;
+
+			//does location have quest?
+			if (newLocation.QuestAvailableHere != null)
+			{
+				//See if player already has quest and if completed
+				bool playerHasQuest = HasThisQuest(newLocation.QuestAvailableHere);
+				bool playerCompletedQuest = CompletedThisQuest(newLocation.QuestAvailableHere);
+
+				//see if player already has quest
+				if (playerHasQuest)
+				{
+					//if player has not completed quest
+					if (!playerCompletedQuest)
+					{
+						//see if player has all items to complete quest
+						bool playerHasItemsForQuest = HasItemsForQuest(newLocation.QuestAvailableHere);
+
+						//player has all items to complete quest
+						if (playerHasItemsForQuest)
+						{
+							//display message
+							RaiseMessage("You complete the " + newLocation.QuestAvailableHere.Name + " quest.");
+
+							//remove quest items from inventory
+							RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
+
+							//Give quest rewards
+							RaiseMessage("You receive: ");
+							RaiseMessage(newLocation.QuestAvailableHere.RewardEXP.ToString() + " EXP");
+							RaiseMessage(newLocation.QuestAvailableHere.RewardGold.ToString() + " Gold");
+							RaiseMessage(newLocation.QuestAvailableHere.RewardItem.Name);
+
+							AddEXP(newLocation.QuestAvailableHere.RewardEXP);
+							Gold += newLocation.QuestAvailableHere.RewardGold;
+
+							//add reward item to inventory
+							AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
+
+							//mark quest as completed
+							MarkQuestCompleted(newLocation.QuestAvailableHere);
+						}
+					}
+				}
+				else
+				{
+					//player does not already have quest
+
+					//display messages
+					RaiseMessage("You receive the " + newLocation.QuestAvailableHere.Name + " quest.");
+					RaiseMessage(newLocation.QuestAvailableHere.Description);
+					RaiseMessage("To complete it, return with:");
+					foreach (QuestCompletionItem qci in newLocation.QuestAvailableHere.QuestCompletionItems)
+					{
+						if (qci.Quantity == 1)
+						{
+							RaiseMessage(qci.Quantity.ToString() + " " + qci.Details.Name);
+						}
+						else
+						{
+							RaiseMessage(qci.Quantity.ToString() + " " + qci.Details.NamePlural);
+						}
+					}
+
+					//add quest to quest list
+					Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere));
+				}
+			}
+
+			//Does location have enemy?
+			if (newLocation.EnemyLivingHere != null)
+			{
+				RaiseMessage("You see a " + newLocation.EnemyLivingHere.Name);
+
+				//make new enemy using values from std enemy in World.Enemy list
+				Enemy standardEnemy = World.EnemyById(newLocation.EnemyLivingHere.ID);
+
+				_currentEnemy = new Enemy(standardEnemy.ID, standardEnemy.Name,
+					standardEnemy.MaxDamage, standardEnemy.RewardEXP, standardEnemy.RewardGold, standardEnemy.CurrentHP, standardEnemy.MaxHP);
+
+				foreach (LootItem lootItem in standardEnemy.LootTable)
+				{
+					_currentEnemy.LootTable.Add(lootItem);
+				}
+			}
+			else
+			{
+				_currentEnemy = null;
+			}
+		}
+
+		public void MoveNorth()
+		{
+			if(CurrentLocation.LocationToNorth != null)
+			{
+				MoveTo(CurrentLocation.LocationToNorth);
+			}
+		}
+
+		public void MoveEast()
+		{
+			if (CurrentLocation.LocationToEast != null)
+			{
+				MoveTo(CurrentLocation.LocationToEast);
+			}
+		}
+
+		public void MoveSouth()
+		{
+			if (CurrentLocation.LocationToSouth != null)
+			{
+				MoveTo(CurrentLocation.LocationToSouth);
+			}
+		}
+
+		public void MoveWest()
+		{
+			if (CurrentLocation.LocationToWest != null)
+			{
+				MoveTo(CurrentLocation.LocationToWest);
+			}
+		}
+
+		public void UseWeapon(Weapon weapon)
+		{
+			//determine amount of damage to do
+			int damageToEnemy = RNG.NumberBetween(weapon.MinDamage, weapon.MaxDamage);
+
+			//apply damage to enemy's currentHP
+			_currentEnemy.CurrentHP -= damageToEnemy;
+
+			//display message
+			RaiseMessage("You hit the " + _currentEnemy.Name + " for " + damageToEnemy + " damage.");
+
+			//check if enemy is dead
+			if(_currentEnemy.CurrentHP <= 0)
+			{
+				RaiseMessage("");
+				RaiseMessage("You defeated the " + _currentEnemy.Name);
+
+				//give player EXP
+				AddEXP(_currentEnemy.RewardEXP);
+				RaiseMessage("You receive " + _currentEnemy.RewardEXP + " experience.");
+
+				//give player gold
+				Gold += _currentEnemy.RewardGold;
+				RaiseMessage("You receive " + _currentEnemy.RewardGold + " gold.");
+
+				//get random loot
+				List<InventoryItem> lootedItems = new List<InventoryItem>();
+
+				//add items to lootedItems list, comparing random number to drop percentage
+				foreach(LootItem lootItem in _currentEnemy.LootTable)
+				{
+					if(RNG.NumberBetween(1, 100) <= lootItem.DropPercentage)
+					{
+						lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+					}
+				}
+
+				//if no items were randomly selected, add default loot item(s)
+				if(lootedItems.Count == 0)
+				{
+					foreach(LootItem lootItem in _currentEnemy.LootTable)
+					{
+						if (lootItem.IsDefaultItem)
+						{
+							lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+						}
+					}
+				}
+
+				//add looted items to inventory
+				foreach(InventoryItem inventoryItem in lootedItems)
+				{
+					AddItemToInventory(inventoryItem.Details);
+
+					if(inventoryItem.Quantity == 1)
+					{
+						RaiseMessage("You loot " + inventoryItem.Quantity + " " + inventoryItem.Details.Name);
+					}
+					else
+					{
+						RaiseMessage("You loot " + inventoryItem.Quantity + " " + inventoryItem.Details.NamePlural);
+					}
+				}
+
+				//add blank line to messages
+				RaiseMessage("");
+
+				//move player to current location to respawn enemy and heal player
+				MoveTo(CurrentLocation);
+			}
+			else
+			{
+				//Enemy is still alive
+
+				//determine enemy damage to player
+				int damageToPlayer = RNG.NumberBetween(0, _currentEnemy.MaxDamage);
+
+				//display message
+				RaiseMessage("The " + _currentEnemy.Name + " did " + damageToPlayer + " damage to you.");
+
+				//subtract damage from player
+				CurrentHP -= damageToPlayer;
+
+				if(CurrentHP <= 0)
+				{
+					//display message
+					RaiseMessage("The " + _currentEnemy + " defeated you.");
+
+					//Move player to home
+					MoveHome();
+				}
+			}
+		}
+
+		public void UsePotion(HealingPotion potion)
+		{
+			//add healing amount to player's currentHP
+			CurrentHP += potion.AmountToHeal;
+
+			//current hp cannot exceed maxHP
+			if (CurrentHP > MaxHP)
+			{
+				CurrentHP = MaxHP;
+			}
+
+			//remove potion from inventory
+			RemoveItemFromInventory(potion, 1);
+
+			//display message
+			RaiseMessage("You drink a " + potion.Name + ".");
+
+			//enemy attacks
+			//determine enemy damage to player
+			int damageToPlayer = RNG.NumberBetween(0, _currentEnemy.MaxDamage);
+
+			//display message
+			RaiseMessage("The " + _currentEnemy.Name + " did " + damageToPlayer + " damage to you.");
+
+			//subtract damage from player
+			CurrentHP -= damageToPlayer;
+
+			if (CurrentHP <= 0)
+			{
+				//display message
+				RaiseMessage("The " + _currentEnemy + " defeated you.");
+
+				//Move player to home
+				MoveHome();
+			}
+		}
+
+		private void MoveHome()
+		{
+			MoveTo(World.LocationById(World.LOCATION_ID_HOME));
+		}
 	}
 }
