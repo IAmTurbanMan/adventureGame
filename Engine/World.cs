@@ -8,6 +8,7 @@ namespace Engine
 {
 	public static class World
 	{
+		public const int UNSELLABLE_ITEM = -1;
 		public static readonly List<Item> Items = new List<Item>();
 		public static readonly List<Enemy> Enemies = new List<Enemy>();
 		public static readonly List<Quest> Quests = new List<Quest>();
@@ -51,16 +52,16 @@ namespace Engine
 
 		private static void PopulateItems()
 		{
-			Items.Add(new Weapon(ITEM_ID_RUSTY_SWORD, "Rusty sword", "rusty swords", 1, 5));
-			Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "rat tails"));
-			Items.Add(new Item(ITEM_ID_PIECE_OF_FUR, "Piece of fur", "pieces of fur"));
-			Items.Add(new Item(ITEM_ID_SNAKE_FANG, "Snake fang", "snake fangs"));
-			Items.Add(new Item(ITEM_ID_SNAKESKIN, "Snake skin", "snake skins"));
-			Items.Add(new Weapon(ITEM_ID_CLUB, "Club", "clubs", 3, 10));
-			Items.Add(new HealingPotion(ITEM_ID_HEALING_POTION, "Healing Potion", "healing potions", 5));
-			Items.Add(new Item(ITEM_ID_SPIDER_FANG, "Spider fang", "spider fangs"));
-			Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "spider silk"));
-			Items.Add(new Item(ITEM_ID_ADVENTURER_PASS, "Adventurer Pass", "adventurer passes"));
+			Items.Add(new Weapon(ITEM_ID_RUSTY_SWORD, "Rusty sword", "Rusty swords", 1, 5, 5));
+			Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "Rat tails", 1));
+			Items.Add(new Item(ITEM_ID_PIECE_OF_FUR, "Piece of fur", "Pieces of fur", 1));
+			Items.Add(new Item(ITEM_ID_SNAKE_FANG, "Snake fang", "Snake fangs", 2));
+			Items.Add(new Item(ITEM_ID_SNAKESKIN, "Snake skin", "Snake skins", 2));
+			Items.Add(new Weapon(ITEM_ID_CLUB, "Club", "Clubs", 3, 10, 8));
+			Items.Add(new HealingPotion(ITEM_ID_HEALING_POTION, "Healing Potion", "Healing potions", 5, 3));
+			Items.Add(new Item(ITEM_ID_SPIDER_FANG, "Spider fang", "Spider fangs", 3));
+			Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "Spider silk", 3));
+			Items.Add(new Item(ITEM_ID_ADVENTURER_PASS, "Adventurer's Pass", "Adventurer's passes", UNSELLABLE_ITEM));
 		}
 
 		private static void PopulateEnemies()
