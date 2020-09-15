@@ -114,6 +114,11 @@ namespace Engine
 			Location home = new Location(LOCATION_ID_HOME, "Home", "Your house. Your place is as tidy as ever.");
 
 			Location townSquare = new Location(LOCATION_ID_TOWN_SQUARE, "Town square", "There is a fountain slowly trickling water out of the only spout that isn't clogged.\nThe town square is dead as usual.");
+			Vendor ratBoy = new Vendor("Rat-Boy");
+			ratBoy.AddItemToInventory(ItemByID(ITEM_ID_PIECE_OF_FUR), 5);
+			ratBoy.AddItemToInventory(ItemByID(ITEM_ID_RAT_TAIL), 3);
+			ratBoy.AddItemToInventory(ItemByID(ITEM_ID_HEALING_POTION), 3);
+			townSquare.VendorWorkingHere = ratBoy;
 
 			Location alchemistHut = new Location(LOCATION_ID_ALCHEMIST_HUT, "Alchemist hut", "You see a few strange and glowing plants sit perilously on the shelves in the spartan hut.");
 			alchemistHut.QuestAvailableHere = QuestById(QUEST_ID_CLEAR_ALCHEMIST_GARDEN);
