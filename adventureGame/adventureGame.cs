@@ -151,7 +151,9 @@ namespace adventureGame
 
 		private void btnTrade_Click(object sender, EventArgs e)
 		{
-
+			TradingScreen tradingScreen = new TradingScreen(_player);
+			tradingScreen.StartPosition = FormStartPosition.CenterParent;
+			tradingScreen.ShowDialog(this);
 		}
 
 		private void adventureGame_FormClosing(object sender, FormClosingEventArgs e)
@@ -190,11 +192,12 @@ namespace adventureGame
 
 			if(propertyChangedEventArgs.PropertyName == "CurrentLocation")
 			{
-				//show/hide available movement buttons
+				//show/hide available movement/trade buttons
 				btnNorth.Visible = (_player.CurrentLocation.LocationToNorth != null);
 				btnEast.Visible = (_player.CurrentLocation.LocationToEast != null);
 				btnSouth.Visible = (_player.CurrentLocation.LocationToSouth != null);
 				btnWest.Visible = (_player.CurrentLocation.LocationToWest != null);
+				btnTrade.Visible = (_player.CurrentLocation.VendorWorkingHere != null);
 
 				//display current location name and description
 				rtbLocation.Text = _player.CurrentLocation.Name + Environment.NewLine + Environment.NewLine;

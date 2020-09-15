@@ -12,6 +12,16 @@ namespace Engine
 		private Item _details;
 		private int _quantity;
 
+		public int ItemID
+		{
+			get { return Details.ID; }
+		}
+
+		public int Price
+		{
+			get { return Details.Price; }
+		}
+
 		public Item Details
 		{
 			get { return _details; }
